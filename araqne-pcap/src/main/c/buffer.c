@@ -677,6 +677,7 @@ JNIEXPORT void JNICALL Java_org_araqne_pcap_live_PcapDevice_closeBuffer(JNIEnv *
 //NO	epoll_ctl(sock->epfd, EPOLL_CTL_DEL, sock->s, NULL);
 #endif
 //	closesocket( sock->s );
+	pcds[sock->id] = sock[1].pcd;
 	Java_org_araqne_pcap_live_PcapDevice_close(env, obj, sock->id);
 	pcds[sock->id] = sock[0].pcd;
 	Java_org_araqne_pcap_live_PcapDevice_close(env, obj, sock->id);
