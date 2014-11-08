@@ -490,6 +490,7 @@ JNIEXPORT jobject JNICALL Java_org_araqne_pcap_live_PcapDevice_openBuffer(JNIEnv
 			return NULL;
 		sock[1].pcd = pcds[id];
 	}
+	pcds[id] = sock[0].pcd;
 /*NO
 	if ( ( sock->s = socket( AF_INET, SOCK_DGRAM, 0 ) ) == -1 )
 	{
