@@ -34,8 +34,10 @@ public class RoutingTable {
 
 	public static RoutingEntry findRoute(InetAddress ip) {
 		int target = IpConverter.toInt((Inet4Address) ip);
+		List<RoutingEntry> entries = RoutingTable.getRoutingEntries();
 
-		for (RoutingEntry entry : RoutingTable.getRoutingEntries()) {
+		for (int i = entries.size() - 1; i >= 0; i-- ) {
+			RoutingEntry entry = entries.get(i);
 			int dst = IpConverter.toInt((Inet4Address) entry.getDestination());
 			int mask = IpConverter.toInt((Inet4Address) entry.getMask());
 
