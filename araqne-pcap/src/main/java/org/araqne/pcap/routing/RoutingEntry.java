@@ -59,7 +59,7 @@ public class RoutingEntry {
 
 	@Override
 	public String toString() {
-		return String.format("name=%s, destination=%s, mask=%s, gateway=%s, metric=%d", iface,
+		return String.format("ifname=%s, destination=%s, mask=%s, gateway=%s, metric=%d", iface,
 				destination.getHostAddress(), mask.getHostAddress(), gateway.getHostAddress(), metric);
 	}
 

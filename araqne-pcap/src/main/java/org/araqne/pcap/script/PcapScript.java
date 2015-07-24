@@ -44,6 +44,8 @@ import org.araqne.pcap.live.PcapDeviceMetadata;
 import org.araqne.pcap.live.PcapStreamManager;
 import org.araqne.pcap.live.PcapStat;
 import org.araqne.pcap.live.Promiscuous;
+import org.araqne.pcap.routing.RoutingEntry;
+import org.araqne.pcap.routing.RoutingTable;
 import org.araqne.pcap.util.Arping;
 import org.araqne.pcap.util.Buffer;
 import org.araqne.pcap.util.PcapLiveRunner;
@@ -67,6 +69,15 @@ public class PcapScript implements Script {
 	@Override
 	public void setScriptContext(ScriptContext context) {
 		this.context = context;
+	}
+
+	public void routingTable(String[] args) {
+		context.println("Routing Table");
+		context.println("---------------");
+
+		for (RoutingEntry e : RoutingTable.getRoutingEntries()) {
+			context.println(e);
+		}
 	}
 
 	@ScriptUsage(description = "", arguments = {
