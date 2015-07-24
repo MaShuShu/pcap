@@ -22,6 +22,8 @@ import java.util.List;
 
 import org.araqne.pcap.routing.RoutingEntry;
 import org.araqne.pcap.routing.RoutingTable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PcapDeviceManager {
 	private static final int DEFAULT_SNAPLEN = 65535;
@@ -113,21 +115,39 @@ public class PcapDeviceManager {
 			}
 		}
 
+		Logger slog = LoggerFactory.getLogger(PcapDeviceManager.class);
+		if (slog.isDebugEnabled())
+			slog.debug("araqne pcap: allocated pcap device handle [{}]", handle);
+
 		if (handle == -1)
-			throw new IOException("Unable to open a device: " + MAX_NUMBER_OF_INSTANCE + " devices are already opened.");
+			throw new IOException("Unable to open a pcap device: " + MAX_NUMBER_OF_INSTANCE + " devices are already opened.");
 
 		PcapDeviceMetadata info = getDeviceMetadata(name);
-		if (info == null)
-			throw new IOException("device not found: " + name);
+		if (info == null) {
+			allocatedHandles[handle] = false;
+			throw new IOException("pcap device not found: " + name);
+		}
 
-		PcapDevice device = new PcapDevice(info, handle, name, snaplen, promisc == Promiscuous.On, milliseconds);
-		device.addListener(new PcapDeviceEventListener() {
-			@Override
-			public void onClosed(PcapDevice device) {
-				allocatedHandles[device.getHandle()] = false;
-			}
-		});
+		try {
+			PcapDevice device = new PcapDevice(info, handle, name, snaplen, promisc == Promiscuous.On, milliseconds);
+			device.addListener(new PcapDeviceEventListener() {
+				@Override
+				public void onClosed(PcapDevice device) {
+					Logger slog = LoggerFactory.getLogger(PcapDeviceManager.class);
+					if (slog.isDebugEnabled())
+						slog.debug("araqne pcap: deallocated pcap device handle [{}]", device.getHandle());
 
-		return device;
+					allocatedHandles[device.getHandle()] = false;
+				}
+			});
+
+			return device;
+		} catch (IOException e) {
+			allocatedHandles[handle] = false;
+			throw e;
+		} catch (Throwable t) {
+			allocatedHandles[handle] = false;
+			throw new IOException("cannot open pcap device", t);
+		}
 	}
 }

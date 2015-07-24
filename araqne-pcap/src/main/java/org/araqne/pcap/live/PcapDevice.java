@@ -325,7 +325,7 @@ public class PcapDevice implements PcapInputStream, PcapOutputStream {
 
 	@Override
 	public String toString() {
-		return String.format("NetworkInterface [name=%s, description=%s, macAddress=%s]", metadata.getName(),
+		return String.format("NetworkInterface [handle=%d, name=%s, description=%s, macAddress=%s]", handle, metadata.getName(),
 				metadata.getDescription(), metadata.getMacAddress());
 	}
 
