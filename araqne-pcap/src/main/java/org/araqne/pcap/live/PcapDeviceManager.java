@@ -102,7 +102,7 @@ public class PcapDeviceManager {
 		return open(name, promisc, milliseconds, DEFAULT_SNAPLEN);
 	}
 
-	public static PcapDevice open(String name, Promiscuous promisc, int milliseconds, int snaplen) throws IOException {
+	public static synchronized PcapDevice open(String name, Promiscuous promisc, int milliseconds, int snaplen) throws IOException {
 		if (name == null)
 			throw new IllegalArgumentException("device name should not be null");
 
