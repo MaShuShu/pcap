@@ -181,7 +181,7 @@ public class PcapLiveRunner implements Runnable {
 
 	public void stop() {
 		stop = true;
-		closeDevice();
+		//closeDevice();
 	}
 
 	private void closeDevice() {
