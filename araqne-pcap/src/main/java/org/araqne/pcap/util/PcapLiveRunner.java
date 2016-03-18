@@ -101,13 +101,12 @@ public class PcapLiveRunner implements Runnable {
 		} catch (Exception e) {
 			logger.trace("pcap live runner failed", e);
 		} finally {
+			PcapDeviceMetadata metadata = device.getMetadata();
+			MacAddress macAddress = metadata.getMacAddress();
+			String desc = metadata.getDescription();
+			logger.trace("araqne-pcap: live runner mac={}, desc={} stopped", macAddress, desc);
 			closeDevice();
 		}
-
-		PcapDeviceMetadata metadata = device.getMetadata();
-		MacAddress macAddress = metadata.getMacAddress();
-		String desc = metadata.getDescription();
-		logger.trace("araqne-pcap: live runner mac={}, desc={} stopped", macAddress, desc);
 	}
 
 	public void runOnce() throws IOException {
