@@ -105,7 +105,6 @@ public class PcapLiveRunner implements Runnable {
 			MacAddress macAddress = metadata.getMacAddress();
 			String desc = metadata.getDescription();
 			logger.trace("araqne-pcap: live runner mac={}, desc={} stopped", macAddress, desc);
-			closeDevice();
 		}
 	}
 
@@ -180,14 +179,5 @@ public class PcapLiveRunner implements Runnable {
 
 	public void stop() {
 		stop = true;
-		//closeDevice();
-	}
-
-	private void closeDevice() {
-		try {
-			if (device != null && device.isOpen())
-				device.close();
-		} catch (IOException e) {
-		}
 	}
 }
