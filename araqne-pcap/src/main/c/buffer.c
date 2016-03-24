@@ -118,7 +118,7 @@ int WSAWaitForMultipleEvents( int count, WSAEVENT *events, int a, int timeout, i
 
 //buffer = 160bytes x 500000packet x 2sec = 160MB 
 #define thread_max 1
-#define buffer_max ((40/thread_max) << 20)
+#define buffer_max ((160/thread_max) << 20)
 #define packet_max 65536
 #define waiter_max 1000
 #define sendqueue_buffer_max 10485760
@@ -655,8 +655,25 @@ retry:;
 JNIEXPORT jint JNICALL Java_org_araqne_pcap_live_PcapDevice_getPacketBuffered(JNIEnv *env, jobject jobj, jobject jbuf, jint freepos, jint timeout)
 {
 	struct socket_t *sock = (struct socket_t *)(*env)->GetDirectBufferAddress(env, jbuf);
-
 	return buffer_recvpacket( sock, freepos, timeout );
+}
+
+JNIEXPORT jintArray JNICALL Java_org_araqne_pcap_live_PcapDevice_getPacketBufferedArray(JNIEnv *env, jobject jobj, jobject jbuf, jint freepos, jint timeout)
+{
+	struct socket_t *sock = (struct socket_t *)(*env)->GetDirectBufferAddress(env, jbuf);
+	jintArray result;
+	jint arr[1000];
+	int i;
+	result = (*env)->NewIntArray(env, 1000);
+		
+	for (i = 0; i < 1000; i++) {
+		arr[i] = buffer_recvpacket( sock, freepos, timeout );
+		if (arr[i] == -1)
+			break;
+		freepos = arr[i];
+	}
+	(*env)->SetIntArrayRegion(env, result, 0, 1000, arr);
+	return result;
 }
 
 JNIEXPORT void JNICALL Java_org_araqne_pcap_live_PcapDevice_closeBuffer(JNIEnv *env, jobject obj, jobject jbuf)

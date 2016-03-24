@@ -41,6 +41,14 @@ JNIEXPORT jint JNICALL Java_org_araqne_pcap_live_PcapDevice_getPacketBuffered
 
 /*
  * Class:     org_araqne_pcap_live_PcapDevice
+ * Method:    getPacketBufferedArray
+ * Signature: (Ljava/nio/ByteBuffer;II)[I
+ */
+JNIEXPORT jintArray JNICALL Java_org_araqne_pcap_live_PcapDevice_getPacketBufferedArray
+  (JNIEnv *, jobject, jobject, jint, jint);
+
+/*
+ * Class:     org_araqne_pcap_live_PcapDevice
  * Method:    getTxBuffer
  * Signature: (Ljava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
  */

@@ -112,7 +112,7 @@ public class PcapDevice implements PcapInputStream, PcapOutputStream {
 		}
 	}
 
-	public List<PcapPacket> getPackets() {
+	public List<PcapPacket> getPackets_old() {
 		int len, pkt = 0, timeout = milliseconds;
 		int tsSec, tsUsec, inclLen, origLen;
 		ArrayList<PcapPacket> packetList = new ArrayList<PcapPacket>();
@@ -152,9 +152,48 @@ public class PcapDevice implements PcapInputStream, PcapOutputStream {
 		}
 	}
 
+	public List<PcapPacket> getPackets() {
+		int len, pkt = 0, timeout = milliseconds;
+		int tsSec, tsUsec, inclLen, origLen;
+		ArrayList<PcapPacket> packetList = new ArrayList<PcapPacket>();
+
+		int[] array;
+		synchronized (rxLock) {
+			if (!isOpen)
+				throw new IllegalStateException("device is closed");
+
+			array = getPacketBufferedArray(buffer, offset, timeout);
+			for (int i = 0; i < array.length; i++) {
+				int ret = array[i];
+				if (ret < 0)
+					break;
+
+				offset = ret;
+				buffer.position(offset);
+				len = buffer.getInt();
+				tsSec = buffer.getInt();
+				tsUsec = buffer.getInt();
+				inclLen = buffer.getInt();
+				origLen = buffer.getInt();
+				len -= 16;
+				byte data[] = new byte[len];
+				buffer.get(data, 0, len);
+
+				PacketHeader ph = new PacketHeader(tsSec, tsUsec, inclLen, origLen);
+				PacketPayload pl = new PacketPayload(data);
+				PcapPacket pp = new PcapPacket(ph, pl);
+				packetList.add(pp);
+			}
+		}
+		
+		return packetList;
+	}
+
 	private native PcapPacket getPacket(int id) throws IOException;
 
 	private native int getPacketBuffered(ByteBuffer buf, int freepos, int timeout);
+
+	private native int[] getPacketBufferedArray(ByteBuffer buf, int freepos, int timeout);
 
 	private native ByteBuffer getTxBuffer(ByteBuffer buf);
 
