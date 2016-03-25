@@ -91,7 +91,8 @@ public class PcapDevice implements PcapInputStream, PcapOutputStream {
 		callbacks.remove(callback);
 	}
 
-	private native void open(int handle, String name, int snaplen, boolean promisc, int milliseconds) throws IOException;
+	private native void open(int handle, String name, int snaplen, boolean promisc, int milliseconds)
+			throws IOException;
 
 	private native ByteBuffer openBuffer(int handle, String name, int snaplen, boolean promisc, int milliseconds)
 			throws IOException;
@@ -112,44 +113,37 @@ public class PcapDevice implements PcapInputStream, PcapOutputStream {
 		}
 	}
 
-	public List<PcapPacket> getPackets_old() {
+	public List<byte[]> getPackets2() {
 		int len, pkt = 0, timeout = milliseconds;
 		int tsSec, tsUsec, inclLen, origLen;
-		ArrayList<PcapPacket> packetList = new ArrayList<PcapPacket>();
+		ArrayList<byte[]> packetList = new ArrayList<byte[]>();
 
-		while (true) {
-			int ret = 0;
-			synchronized (rxLock) {
-				if (!isOpen)
-					throw new IllegalStateException("device is closed");
+		int[] array;
+		synchronized (rxLock) {
+			if (!isOpen)
+				throw new IllegalStateException("device is closed");
 
-				ret = getPacketBuffered(buffer, offset, timeout);
+			array = getPacketBufferedArray(buffer, offset, timeout);
+			for (int i = 0; i < array.length; i++) {
+				int ret = array[i];
+				if (ret < 0)
+					break;
 
-				if (ret >= 0) {
-					offset = ret;
-					buffer.position(offset);
-					len = buffer.getInt();
-					tsSec = buffer.getInt();
-					tsUsec = buffer.getInt();
-					inclLen = buffer.getInt();
-					origLen = buffer.getInt();
-					len -= 16;
-					byte data[] = new byte[len];
-					buffer.get(data, 0, len);
-
-					PacketHeader ph = new PacketHeader(tsSec, tsUsec, inclLen, origLen);
-					PacketPayload pl = new PacketPayload(data);
-					PcapPacket pp = new PcapPacket(ph, pl);
-					packetList.add(pp);
-					pkt++;
-					if (pkt >= 128)
-						return packetList;
-					timeout = 0;
-				} else {
-					return packetList;
-				}
+				offset = ret;
+				buffer.position(offset);
+				len = buffer.getInt();
+				tsSec = buffer.getInt();
+				tsUsec = buffer.getInt();
+				inclLen = buffer.getInt();
+				origLen = buffer.getInt();
+				len -= 16;
+				byte data[] = new byte[len];
+				buffer.get(data, 0, len);
+				packetList.add(data);
 			}
 		}
+
+		return packetList;
 	}
 
 	public List<PcapPacket> getPackets() {
@@ -185,7 +179,7 @@ public class PcapDevice implements PcapInputStream, PcapOutputStream {
 				packetList.add(pp);
 			}
 		}
-		
+
 		return packetList;
 	}
 
@@ -310,7 +304,8 @@ public class PcapDevice implements PcapInputStream, PcapOutputStream {
 		}
 	}
 
-	private native void setFilter(int id, String filter, int optimize, int netmask) throws IOException, IllegalArgumentException;
+	private native void setFilter(int id, String filter, int optimize, int netmask)
+			throws IOException, IllegalArgumentException;
 
 	/**
 	 * Gets pcap packet capture statistics from libpcap.
@@ -364,8 +359,8 @@ public class PcapDevice implements PcapInputStream, PcapOutputStream {
 
 	@Override
 	public String toString() {
-		return String.format("NetworkInterface [handle=%d, name=%s, description=%s, macAddress=%s]", handle, metadata.getName(),
-				metadata.getDescription(), metadata.getMacAddress());
+		return String.format("NetworkInterface [handle=%d, name=%s, description=%s, macAddress=%s]", handle,
+				metadata.getName(), metadata.getDescription(), metadata.getMacAddress());
 	}
 
 	public boolean isOpen() {
