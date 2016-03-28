@@ -113,10 +113,10 @@ public class PcapDevice implements PcapInputStream, PcapOutputStream {
 		}
 	}
 
-	public List<byte[]> getPackets2() {
+	public byte[][] getPackets2() {
 		int len, pkt = 0, timeout = milliseconds;
 		int tsSec, tsUsec, inclLen, origLen;
-		ArrayList<byte[]> packetList = new ArrayList<byte[]>();
+		byte[][] packetList = null;
 
 		int[] array;
 		synchronized (rxLock) {
@@ -124,6 +124,7 @@ public class PcapDevice implements PcapInputStream, PcapOutputStream {
 				throw new IllegalStateException("device is closed");
 
 			array = getPacketBufferedArray(buffer, offset, timeout);
+			packetList = new byte[array.length][];
 			for (int i = 0; i < array.length; i++) {
 				int ret = array[i];
 				if (ret < 0)
@@ -139,7 +140,7 @@ public class PcapDevice implements PcapInputStream, PcapOutputStream {
 				len -= 16;
 				byte data[] = new byte[len];
 				buffer.get(data, 0, len);
-				packetList.add(data);
+				packetList[i] = data;
 			}
 		}
 
