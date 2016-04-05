@@ -372,4 +372,12 @@ public class PcapDevice implements PcapInputStream, PcapOutputStream {
 		if (!isOpen)
 			throw new IOException("Device is not opened");
 	}
+	
+	public boolean isWriteable(int length){
+		if(txbuffer.remaining() >= length){
+			return true;
+		}else{
+			return false;
+		}
+	}
 }
