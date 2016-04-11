@@ -112,46 +112,6 @@ public class PcapDevice implements PcapInputStream, PcapOutputStream {
 		}
 	}
 
-	public List<PcapPacket> getPackets_old() {
-		int len, pkt = 0, timeout = milliseconds;
-		int tsSec, tsUsec, inclLen, origLen;
-		ArrayList<PcapPacket> packetList = new ArrayList<PcapPacket>();
-
-		while (true) {
-			int ret = 0;
-			synchronized (rxLock) {
-				if (!isOpen)
-					throw new IllegalStateException("device is closed");
-
-				ret = getPacketBuffered(buffer, offset, timeout);
-
-				if (ret >= 0) {
-					offset = ret;
-					buffer.position(offset);
-					len = buffer.getInt();
-					tsSec = buffer.getInt();
-					tsUsec = buffer.getInt();
-					inclLen = buffer.getInt();
-					origLen = buffer.getInt();
-					len -= 16;
-					byte data[] = new byte[len];
-					buffer.get(data, 0, len);
-
-					PacketHeader ph = new PacketHeader(tsSec, tsUsec, inclLen, origLen);
-					PacketPayload pl = new PacketPayload(data);
-					PcapPacket pp = new PcapPacket(ph, pl);
-					packetList.add(pp);
-					pkt++;
-					if (pkt >= 128)
-						return packetList;
-					timeout = 0;
-				} else {
-					return packetList;
-				}
-			}
-		}
-	}
-
 	public List<PcapPacket> getPackets() {
 		int len, pkt = 0, timeout = milliseconds;
 		int tsSec, tsUsec, inclLen, origLen;
