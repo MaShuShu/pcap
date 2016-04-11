@@ -113,7 +113,7 @@ public class PcapDevice implements PcapInputStream, PcapOutputStream {
 		}
 	}
 
-	public byte[][] getPacketsAsBytes() {
+	public byte[][] getPacketBlobs() {
 		int len, pkt = 0, timeout = milliseconds;
 		int tsSec, tsUsec, inclLen, origLen;
 		byte[][] packetList = null;
