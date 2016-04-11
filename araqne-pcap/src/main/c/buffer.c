@@ -668,6 +668,7 @@ JNIEXPORT jintArray JNICALL Java_org_araqne_pcap_live_PcapDevice_getPacketBuffer
 		
 	for (i = 0; i < 1000; i++) {
 		arr[i] = buffer_recvpacket( sock, freepos, timeout );
+		timeout = 0;
 		if (arr[i] == -1)
 			break;
 		freepos = arr[i];
